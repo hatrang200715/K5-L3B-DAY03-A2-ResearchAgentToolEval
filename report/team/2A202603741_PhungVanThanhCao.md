@@ -48,7 +48,7 @@ Vai B (Tool builder):
   - Code: `starter_v0/tools/hn_search/`, `starter_v0/tools/reading_time/`, `starter_v0/tools/extract_links/`, `starter_v0/tools/dedupe_items/`, `starter_v0/tools/__init__.py`, `starter_v0/tools/NEW_TOOLS_FOR_A.yaml`.
   - Test: `starter_v0/tests/test_tools_todo.py` (đoạn `YOUR NEW TOOL(S)`).
   - Kết quả: `pytest` → **76 passed, 14 skipped, 0 failed** (14 skipped là stub của tool có sẵn, được phép); `pytest tests/test_tool_contract.py` khi dán tạm block YAML mới vào `tools.yaml` → **75 passed** (sau đó hoàn nguyên `tools.yaml`).
-  - PR: (điền link Pull Request vào `main` sau khi push)
+  - PR: https://github.com/hatrang200715/K5-L3B-DAY03-A2-ResearchAgentToolEval/pull/1
 - AI/công cụ đã dùng và cách tự kiểm tra kết quả:
   - Dùng **Claude Code** (trong VS Code) để đọc đề, lên kế hoạch, viết code 4 tool, `TOOL.md`, block YAML và unit test.
   - Cách tự kiểm tra:
