@@ -9,7 +9,9 @@ from tools._shared import TIMEOUT, err
 
 
 def send_telegram(text: str = "", confirmed: bool = False) -> dict[str, Any]:
-    if not confirmed:
+    # Only a real boolean True counts: models sometimes send "false"/"no" as strings,
+    # which are truthy and would otherwise bypass the confirmation guardrail.
+    if confirmed is not True:
         return {
             "tool": "send_telegram",
             "status": "needs_confirmation",
