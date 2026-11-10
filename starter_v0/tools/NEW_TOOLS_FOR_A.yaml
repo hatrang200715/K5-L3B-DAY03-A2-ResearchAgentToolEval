@@ -1,0 +1,49 @@
+# Block YAML của vai B gửi vai A.
+# A dán nguyên đoạn dưới vào CUỐI artifacts/tools.yaml (bên trong list `tools:`, giữ thụt lề 2 dấu cách).
+# Đã kiểm tra: dán vào tools.yaml → `pytest tests/test_tool_contract.py` xanh.
+
+  # ---------------- New tools (role B) ----------------
+  - name: hn_search
+    description: "Tìm bài (story) và thảo luận trên Hacker News theo từ khóa, trả về tiêu đề, link, điểm và số bình luận. DÙNG khi user nhắc Hacker News / HN, hoặc muốn biết cộng đồng lập trình viên / dân tech đang bàn gì về một chủ đề. KHÔNG dùng cho tin tức web chung (dùng lookup), tweet/bài trên X (dùng social_search hoặc timeline), hay đọc nội dung một URL (dùng fetch)."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Chủ đề/từ khóa cốt lõi, ngắn gọn, giữ nguyên từ user dùng (vd. \"LLM agents\", \"Rust\"). Không thêm các từ 'Hacker News', 'HN', 'hôm nay', 'mới nhất'."}
+        limit: {type: integer, default: 5, description: "Số bài cần lấy, từ 1 đến 20. Dùng đúng con số user nói; không nói thì để mặc định 5."}
+      required: [query]
+
+  - name: reading_time
+    description: "Đếm số từ, số ký tự và ước tính số phút đọc của một đoạn văn bản ĐÃ CÓ (user dán vào hoặc lấy từ kết quả tool trước). Chạy local. DÙNG khi user hỏi bài này dài bao nhiêu, mấy chữ, đọc mất bao lâu. KHÔNG dùng để tìm hay đọc nội dung từ URL (dùng fetch trước), không dùng để tóm tắt."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, default: "", description: "Toàn bộ văn bản cần đo, nguyên văn. Không truyền URL."}
+        words_per_minute: {type: integer, default: 200, description: "Tốc độ đọc (từ/phút), số nguyên > 0. Chỉ đổi khi user nói rõ tốc độ; mặc định 200."}
+      required: [text]
+
+  - name: extract_links
+    description: "Trích danh sách URL http(s) có trong một đoạn văn bản ĐÃ CÓ, giữ thứ tự, bỏ trùng. Chạy local, không mở link. DÙNG khi user dán một đoạn text/email/bài viết và muốn lấy ra các link trong đó. KHÔNG dùng để đọc nội dung link (dùng fetch) hay tìm link mới trên web (dùng lookup)."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, default: "", description: "Văn bản nguyên văn chứa các link cần trích."}
+        limit: {type: integer, default: 20, description: "Số link tối đa trả về, 1–100; mặc định 20."}
+      required: [text]
+
+  - name: dedupe_items
+    description: "Lọc các item trùng nhau (cùng URL sau khi chuẩn hoá, hoặc cùng tiêu đề nếu không có URL) trong danh sách kết quả ĐÃ GOM từ các tool khác, giữ item đầu tiên. Chạy local. DÙNG khi đã có kết quả từ nhiều nguồn (vd. lookup + hn_search) và cần bỏ trùng trước khi format. KHÔNG dùng khi chưa có item nào, và không dùng để tìm kiếm."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          default: []
+          description: "Danh sách item đã có, mỗi item là object có url và/hoặc title (giữ nguyên các field khác)."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+      required: [items]
