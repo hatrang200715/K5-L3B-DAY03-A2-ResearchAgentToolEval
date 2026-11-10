@@ -3,5 +3,106 @@
   "dataset_role": "group",
   "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_math_news_is_in_scope",
+      "phase": "B", "suite": "group",
+      "query": "Hôm nay có tin gì mới về AI giải toán olympiad không?",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "lookup", "args": {"topic": "news", "timeframe": "day"}}]},
+      "metadata": {"skill": "near_out_of_scope_news", "difficulty": "medium", "what_it_tests": "Câu có chữ 'toán' nhưng là hỏi TIN TỨC → vẫn thuộc research, phải gọi lookup(topic=news, timeframe=day), không từ chối như R08."}
+    },
+    {
+      "id": "G02_thanks_no_tool",
+      "phase": "B", "suite": "group",
+      "query": "Cảm ơn bạn nhé, hôm nay vậy là đủ rồi",
+      "failure_type": "unnecessary_tool",
+      "expect": {"no_tool": true, "behavior": "answer_without_tool"},
+      "metadata": {"skill": "no_tool_smalltalk", "difficulty": "easy", "what_it_tests": "Câu xã giao kết thúc hội thoại → trả lời thẳng, không gọi tool nào (kể cả send/format)."}
+    },
+    {
+      "id": "G03_missing_pronoun_handle",
+      "phase": "B", "suite": "group",
+      "query": "Đọc giúp mình mấy tweet gần đây của anh ấy",
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"skill": "clarify_pronoun", "difficulty": "medium", "what_it_tests": "Chỉ có đại từ 'anh ấy', không có tên/handle → hỏi lại, không đoán người nổi tiếng (lỗi R10 ở v0)."}
+    },
+    {
+      "id": "G04_out_of_scope_booking",
+      "phase": "B", "suite": "group",
+      "query": "Đặt giúp mình vé máy bay Hà Nội - Đà Nẵng tối mai",
+      "failure_type": "out_of_scope",
+      "expect": {"no_tool": true, "behavior": "refuse"},
+      "metadata": {"skill": "out_of_scope_action", "difficulty": "easy", "what_it_tests": "Hành động ngoài phạm vi research (đặt vé) → không gọi tool, nói rõ không làm được."}
+    },
+    {
+      "id": "G05_timeframe_month",
+      "phase": "B", "suite": "group",
+      "query": "Tin tức về Nvidia trong tháng này",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "lookup", "args": {"topic": "news", "timeframe": "month"}}]},
+      "metadata": {"skill": "arg_timeframe_month", "difficulty": "easy", "what_it_tests": "'tháng này' → timeframe=month, topic=news (base chỉ phủ day/week)."}
+    },
+    {
+      "id": "GM01_switch_timeline_to_search",
+      "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Lấy tweet mới nhất của Sam Altman"},
+        {"role": "user", "content": "Thôi, xem mọi người trên Twitter đang nói gì về OpenAI"},
+        {"role": "user", "content": "Lấy các tweet nổi bật nhất nhé"}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "social_search", "args": {"search_type": "Top"}}]},
+      "metadata": {"skill": "multiturn_timeline_vs_search", "difficulty": "hard", "what_it_tests": "3 turns, hai tool gần nghĩa: chuyển từ bài CỦA một người (timeline) sang bài VỀ chủ đề (social_search), search_type=Top, không gọi lại timeline."}
+    },
+    {
+      "id": "GM02_send_after_confirmation",
+      "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Đăng lên Telegram nội dung: 'Bản tin AI ngày 10/11'"},
+        {"role": "assistant", "content": "Bạn xác nhận gửi đúng nội dung 'Bản tin AI ngày 10/11' lên Telegram chứ?"},
+        {"role": "user", "content": "Đúng rồi, mình xác nhận, gửi đi"}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "send", "args": {"confirmed": true}}]},
+      "metadata": {"skill": "send_after_confirm", "difficulty": "medium", "what_it_tests": "Mặt còn lại của boundary: user ĐÃ xác nhận rõ → gọi send với confirmed=true, không hỏi lại vô hạn."}
+    },
+    {
+      "id": "GM03_correction_search_type",
+      "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tweet mới nhất về Gemini"},
+        {"role": "user", "content": "À không, lấy các tweet nổi bật nhất"},
+        {"role": "user", "content": "Vẫn chủ đề Gemini nhé"}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "social_search", "args": {"query": "Gemini", "search_type": "Top"}}]},
+      "metadata": {"skill": "multiturn_search_type_correction", "difficulty": "hard", "what_it_tests": "3 turns: sửa Latest→Top, giữ query Gemini."}
+    },
+    {
+      "id": "GM04_clarify_then_handle",
+      "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Lấy tweet mới nhất của người đó giúp mình"},
+        {"role": "user", "content": "Yann LeCun"},
+        {"role": "user", "content": "5 tweet nhé"}
+      ],
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "timeline", "args": {"screenname": "ylecun", "limit": 5}}]},
+      "metadata": {"skill": "multiturn_clarify_handle", "difficulty": "hard", "what_it_tests": "3 turns: sau khi được bổ sung tên → map Yann LeCun thành handle ylecun, limit=5."}
+    },
+    {
+      "id": "GM05_reconfirm_after_edit",
+      "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Đăng lên Telegram nội dung: 'Họp nhóm lúc 9h'"},
+        {"role": "assistant", "content": "Bạn xác nhận gửi 'Họp nhóm lúc 9h' lên Telegram chứ?"},
+        {"role": "user", "content": "Khoan, đổi thành 'Họp nhóm lúc 10h'"}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "yes_no"}}]},
+      "metadata": {"skill": "reconfirm_changed_content", "difficulty": "hard", "what_it_tests": "3 turns: user sửa nội dung giữa chừng nhưng CHƯA xác nhận bản mới → phải hỏi xác nhận lại (yes_no), không được send."}
+    }
+  ]
 }
