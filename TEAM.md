@@ -2,7 +2,7 @@
 
 ## Thông tin nhóm
 
-- Tên nhóm:A2
+- Tên nhóm: A2
 - Lớp: L3A / L3B
 - Repo nhóm: `K5-L3A-DAY03-TenNhom-ResearchAgentToolEval` hoặc `K5-L3B-DAY03-TenNhom-ResearchAgentToolEval` (xem [SUBMISSION.md](SUBMISSION.md))
 - URL repo, nhánh nộp, commit chốt:
@@ -11,8 +11,9 @@
 
 | STT | Họ tên | MSSV | Email | GitHub | Vai trò |
 | --: | ------ | ---- | ----- | ------ | ------- |
-|   1 | Phùng Văn Thanh Cao    |2A202603741      |ptc99998888@gmail.com       |ththanh8888        |Thành viên làm B:Tool builder          |
-|   2 |        |      |       |        |         |
+|   1 | Vũ Quang Huy | 2A202603782 | 26ai.huyvq6@vinuni.edu.vn | huyvu-03 |         |
+|   2 | Phùng Văn Thanh Cao    |2A202603741      |ptc99998888@gmail.com       |ththanh8888        |Thành viên làm B:Tool builder          |
+|   3 |        |      |       |        |         |
 
 ## Cá nhân
 
