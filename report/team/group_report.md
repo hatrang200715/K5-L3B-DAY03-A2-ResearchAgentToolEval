@@ -37,8 +37,19 @@ Ví dụ: "Research agent: tìm tin theo từ khóa / theo tài khoản, đọc 
 | Tên tool | Làm được gì | Tool mới nhóm thêm? |
 |---|---|---|
 | clarify | hỏi lại người dùng khi thiếu thông tin | không |
-|  |  |  |
-|  |  |  |
+| timeline | Lấy bài đăng gần đây của một tài khoản cụ thể | không |
+| social_search | Tìm bài đăng mạng xã hội theo từ khóa | không |
+| lookup | Tìm thông tin hoặc tin tức trên web | không |
+| fetch | Đọc nội dung từ một URL cụ thể | không |
+| format | Trình bày các item đã có thành digest | không |
+| send | Gửi nội dung lên Telegram sau khi người dùng xác nhận | không |
+| policy | Tìm thông tin trong tài liệu chính sách nội bộ | không |
+| papers | Tìm paper khoa học trên arXiv | không |
+| paper_text | Tải và trích nội dung từ paper arXiv | không |
+| hn_search | Tìm bài và thảo luận trên Hacker News theo từ khóa | có |
+| reading_time | Đếm từ, ký tự và ước tính thời gian đọc văn bản | có |
+| extract_links | Trích các URL từ một đoạn văn bản có sẵn | có |
+| dedupe_items | Loại bỏ item trùng URL hoặc tiêu đề trong danh sách kết quả | có |
 
 ### A3. Câu hỏi mẫu để thử
 
@@ -114,7 +125,7 @@ Lấy từ `starter_v0/transcripts/*.transcript.json`.
 |---|---|---|---|
 | Tool mới (`tools/<tên>/`) |  |  |  |
 | Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed) |  |  |
-| UI (lệnh chạy + link dùng thử) |  |  |  |
+| UI (lệnh chạy + link dùng thử) | [`starter_v0/app.py`](../../starter_v0/app.py), [`starter_v0/requirements.txt`](../../starter_v0/requirements.txt), [`v3 UI transcript — hn_search`](../../starter_v0/transcripts/v3_openrouter_20261111T104130996385.transcript.json), [`v3 UI transcript — extract_links/reading_time`](../../starter_v0/transcripts/v3_openrouter_20261111T104444114723.transcript.json). Chạy bằng `cd starter_v0 && python -m streamlit run app.py`; link public bổ sung khi mở Cloudflare Tunnel. | Streamlit UI hỗ trợ chat nhiều lượt, tự chọn version mới nhất từ `version_log.csv`, hiển thị tool calls/args/results, xử lý `clarify`, lưu transcript và tự nạp tool mới từ `tools.yaml`. Đã kiểm tra v3 gọi đúng `hn_search`, `extract_links` và `reading_time`. | Không hiển thị API key; lỗi provider/tool được hiển thị thay vì che giấu. API bên ngoài và OpenRouter có giới hạn quota; URL `trycloudflare.com` là tạm thời và phải được kiểm tra lại trước demo. |
 
 Tool unit tests: số test đã viết, và một ví dụ lỗi mà unit test bắt được nhưng eval không bắt được.
 
