@@ -5,7 +5,7 @@
 - Họ tên: Phùng Thị Nhài
 - MSSV: 2A202603725
 - Email: nhaipt342k4@gmail.com
-- Vai trong nhóm: **C — Tester**
+- Vai trong nhóm: **Tester**
 
 ## 2. Phần việc phụ trách
 
@@ -33,7 +33,7 @@
 
 Nguyên tắc viết `expect`: chỉ ghi key có đáp án duy nhất (handle, limit, topic, timeframe, search_type, confirmed), không ghi `query` dài để tránh FAIL oan.
 
-Ghi chú: case route tới tool mới của B sẽ thay một case ở trên sau khi A merge tool mới vào `tools.yaml` (contract test quét `eval_group.json`, nhắc tool chưa khai báo sẽ làm pytest đỏ cả nhóm).
+Ghi chú: case route tới tool mới của nhóm sẽ thay một case ở trên sau khi tool mới được khai báo trong `tools.yaml` (contract test quét `eval_group.json`, nhắc tool chưa khai báo sẽ làm pytest đỏ cả nhóm).
 
 ### 3.2 Unit test — 14 stub tool có sẵn
 
@@ -48,7 +48,7 @@ clarify ×1, format ×3, send ×2, lookup ×1, fetch ×2, timeline ×1, social_s
 | 3 | `format` | item không có url/source | Dòng thừa `" - "` ở cuối | Bỏ separator khi không có nguồn | `test_format_item_without_source_has_no_dangling_dash` |
 | 4 | `timeline`, `social_search` | `limit=-1` | `items[:-1]` → trả 19/20 tweet | `limit <= 0` → mặc định 5 | `test_tweet_tools_negative_limit_falls_back_to_default` |
 
-Kiểm chứng: chạy 4 regression test (8 trường hợp tham số hoá) trên **code gốc** → 8 failed; sau khi sửa → pass. `pytest` toàn suite lúc commit: 88 passed, 0 failed (3 skipped là stub tool mới của B). Sau khi merge phần của B vào `main`: **102 passed, 0 failed, 0 skipped**.
+Kiểm chứng: chạy 4 regression test (8 trường hợp tham số hoá) trên **code gốc** → 8 failed; sau khi sửa → pass. `pytest` toàn suite lúc commit: 88 passed, 0 failed (3 skipped là stub của tool mới do thành viên khác phụ trách). Sau khi merge phần tool mới vào `main`: **102 passed, 0 failed, 0 skipped**.
 
 **Ví dụ lỗi unit test bắt được mà eval không bắt được:** bug #1. Eval chỉ chấm model có gọi `send(confirmed=true)` đúng lúc không; nếu model gửi `confirmed="false"` thì eval báo `wrong_arg_value` nhưng **tool vẫn gửi tin thật** — chỉ unit test mới thấy request POST đã đi ra.
 
@@ -56,7 +56,7 @@ Kiểm chứng: chạy 4 regression test (8 trường hợp tham số hoá) trê
 
 - File: `starter_v0/data/eval_group.json`, `starter_v0/tests/test_tools_todo.py`, `starter_v0/tools/{send,format,timeline,social_search}/tool.py`
 - Branch: `phungthinhai-03725` (merge vào `main` qua PR #4) — commit: `af8bcb8`
-- Run suite group: [`starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json`](../../starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json) — `v3+p29a0e3cdc49c+t2b0b1d3ae07e` (khớp hash v3 trong `version_log.csv`), `openai/gpt-4o-mini`, 10/10 case đo được, `provider_error_cases=0`, **8/10 PASS**. FAIL: `G04_out_of_scope_booking` (gọi `clarify` thay vì từ chối), `GM04_clarify_then_handle` (đoán handle `yannlecun` thay vì `ylecun`). Chi tiết ở mục B3 của group report.
+- Run suite group: [`starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json`](../../starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json) — `v3+p29a0e3cdc49c+t2b0b1d3ae07e` (khớp hash v3 trong `version_log.csv`), `openai/gpt-4o-mini`, 10/10 case đo được, `provider_error_cases=0`, **8/10 PASS**. FAIL: `G04_out_of_scope_booking` (gọi `clarify` thay vì từ chối), `GM04_clarify_then_handle` (đoán handle `yannlecun` thay vì `ylecun`). Chi tiết ở bảng "Team Eval Cases" của group report.
 - Sự cố khi chạy: lần chạy đầu trên Windows cho hash `p002948ccb771+tc8ea06338214` lệch v3 dù nội dung giống hệt — do `core.autocrlf=true` đổi xuống dòng LF→CRLF khi checkout. Đã tắt `autocrlf`, đưa 2 file artifact về LF (hash khớp lại `29a0e3cdc49c` / `2b0b1d3ae07e`) rồi chạy lại; run có hash sai không dùng làm bằng chứng.
 - Chưa làm được: case route tới tool mới — 4 tool mới chưa được khai báo trong `artifacts/tools.yaml` của v3 nên chưa thể thêm case mà không làm đỏ contract test.
 - AI/công cụ đã dùng và cách tự kiểm tra kết quả: Claude Code (trợ lý AI) hỗ trợ đọc code tool, gợi ý input biên và viết test. Tự kiểm tra bằng: (1) chạy `pytest` sau mỗi thay đổi; (2) chạy regression test trên code gốc để xác nhận test thật sự bắt được bug (8 failed) rồi mới sửa; (3) validate `eval_group.json` bằng chính hàm kiểm tra schema của `run_eval.py` (10 case, 5 single + 5 multi). Không dùng AI để tạo số liệu run.
