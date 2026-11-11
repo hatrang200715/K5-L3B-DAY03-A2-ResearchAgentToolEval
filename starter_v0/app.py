@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import csv
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -18,6 +20,7 @@ ROOT = Path(__file__).parent
 ARTIFACTS_DIR = ROOT / "artifacts"
 SYSTEM_PROMPT_PATH = ARTIFACTS_DIR / "system_prompt.md"
 TOOLS_PATH = ARTIFACTS_DIR / "tools.yaml"
+VERSION_LOG_PATH = ARTIFACTS_DIR / "version_log.csv"
 TRANSCRIPTS_DIR = ROOT / "transcripts"
 
 load_lab_env(ROOT)
@@ -32,6 +35,23 @@ st.set_page_config(
 def make_transcript_id(version: str, provider: str) -> str:
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S%f")
     return "_".join([safe_slug(version), safe_slug(provider), timestamp])
+
+
+def latest_artifact_version(path: Path = VERSION_LOG_PATH) -> str:
+    """Return the highest plain numeric version in version_log.csv."""
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            versions = [row.get("version", "").strip() for row in csv.DictReader(handle)]
+    except (OSError, csv.Error):
+        return "v0"
+
+    numbered_versions: list[tuple[int, str]] = []
+    for version in versions:
+        match = re.fullmatch(r"v(\d+)", version, flags=re.IGNORECASE)
+        if match:
+            numbered_versions.append((int(match.group(1)), version))
+
+    return max(numbered_versions, default=(0, "v0"))[1]
 
 
 def start_session(*, version: str, provider: str, model: str, max_tool_rounds: int) -> dict[str, Any]:
@@ -121,8 +141,8 @@ with st.sidebar:
     ).strip()
     configured_version = st.text_input(
         "Artifact version",
-        value="v0",
-        help="Set this to the version represented by the current prompt and tools, such as v1 or v3.",
+        value=latest_artifact_version(),
+        help="Defaults to the latest numeric version recorded in artifacts/version_log.csv.",
     ).strip()
     configured_max_rounds = st.number_input(
         "Maximum tool rounds",
