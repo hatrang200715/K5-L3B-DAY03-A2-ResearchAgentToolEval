@@ -59,7 +59,7 @@ Kiểm chứng: chạy 4 regression test (8 trường hợp tham số hoá) trê
 - Run suite group: [`starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json`](../../starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json) — `v3+p29a0e3cdc49c+t2b0b1d3ae07e` (khớp hash v3 trong `version_log.csv`), `openai/gpt-4o-mini`, 10/10 case đo được, `provider_error_cases=0`, **8/10 PASS**. FAIL: `G04_out_of_scope_booking` (gọi `clarify` thay vì từ chối), `GM04_clarify_then_handle` (đoán handle `yannlecun` thay vì `ylecun`). Chi tiết ở bảng "Team Eval Cases" của group report.
 - Sự cố khi chạy: lần chạy đầu trên Windows cho hash `p002948ccb771+tc8ea06338214` lệch v3 dù nội dung giống hệt — do `core.autocrlf=true` đổi xuống dòng LF→CRLF khi checkout. Đã tắt `autocrlf`, đưa 2 file artifact về LF (hash khớp lại `29a0e3cdc49c` / `2b0b1d3ae07e`) rồi chạy lại; run có hash sai không dùng làm bằng chứng.
 - Chưa làm được: case route tới tool mới — 4 tool mới chưa được khai báo trong `artifacts/tools.yaml` của v3 nên chưa thể thêm case mà không làm đỏ contract test.
-- AI/công cụ đã dùng và cách tự kiểm tra kết quả: Claude Code (trợ lý AI) hỗ trợ đọc code tool, gợi ý input biên và viết test. Tự kiểm tra bằng: (1) chạy `pytest` sau mỗi thay đổi; (2) chạy regression test trên code gốc để xác nhận test thật sự bắt được bug (8 failed) rồi mới sửa; (3) validate `eval_group.json` bằng chính hàm kiểm tra schema của `run_eval.py` (10 case, 5 single + 5 multi). Không dùng AI để tạo số liệu run.
+- Công cụ hỗ trợ: trợ lý AI để đọc hiểu code, viết test và soạn báo cáo (được coach cho phép). Tự kiểm tra bằng `pytest`, chạy test trên code gốc trước khi sửa bug, và đọc lại toàn bộ báo cáo. Số liệu đều lấy từ run thật.
 
 ## 5. Tự đánh giá
 
