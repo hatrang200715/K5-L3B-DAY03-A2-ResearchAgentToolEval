@@ -14,7 +14,7 @@
 |   1 | Lương Thị Hồng Hạnh       | 2A202603748     |  26ai.hanhlth@vinuni.edu.vn     |    hatrang200715    |     team lead    |
 |   2  Vũ Quang Huy | 2A202603782 | 26ai.huyvq6@vinuni.edu.vn | huyvu-03 |         |
 |   3 | Phùng Văn Thanh Cao    |2A202603741      |ptc99998888@gmail.com       |ththanh8888        |Thành viên làm B:Tool builder          |
-|   4 | Phùng Thị Nhài | 2A202603725 | nhaipt342k4@gmail.com | nhaipt342k4 | C — Tester (eval nhóm + unit test) |
+|   4 | Phùng Thị Nhài | 2A202603725 | nhaipt342k4@gmail.com | nhaipt342k4 | Tester (eval nhóm + unit test) |
 ## Cá nhân
 
 Mỗi thành viên đồng thời tạo một báo cáo riêng trong `report/` theo dạng:
@@ -31,7 +31,7 @@ Báo cáo cá nhân: [report/team/2A202603725_PhungThiNhai.md](report/team/2A202
 
 ### Phần việc phụ trách
 
-- Vai C — Tester: `starter_v0/data/eval_group.json`, 14 stub tool có sẵn trong `starter_v0/tests/test_tools_todo.py`, sửa bug tool có sẵn kèm regression test, chạy suite group, nội dung B3 + B5 (unit test).
+- Tester: `starter_v0/data/eval_group.json`, 14 stub tool có sẵn trong `starter_v0/tests/test_tools_todo.py`, sửa bug tool có sẵn kèm regression test, chạy suite group, nội dung B3 + B5 (unit test).
 
 ### Đóng góp cụ thể
 
