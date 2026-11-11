@@ -38,10 +38,13 @@ Báo cáo cá nhân: [report/team/2A202603725_PhungThiNhai.md](report/team/2A202
 - 10 eval case nhóm (5 single + 5 multi turn).
 - 14 stub test của tool có sẵn → không còn skip.
 - Tìm và sửa 4 bug trong tool có sẵn (`send`, `format` ×2, `timeline`/`social_search`), mỗi bug có regression test.
+- Chạy suite group trên v3, điền bảng B3 và phần Test challenge (B5) trong group report.
 
 ### Bằng chứng
 
--
+- Commit `af8bcb8` (merge vào `main` qua PR #4): `starter_v0/data/eval_group.json`, `starter_v0/tests/test_tools_todo.py`, `starter_v0/tools/{send,format,timeline,social_search}/tool.py`.
+- Run group: `starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json` (`v3+p29a0e3cdc49c+t2b0b1d3ae07e`, 8/10 PASS, `provider_error_cases=0`).
+- `pytest`: 102 passed, 0 failed, 0 skipped.
 
 ## PhungVanThanhCao-2A202603741
 

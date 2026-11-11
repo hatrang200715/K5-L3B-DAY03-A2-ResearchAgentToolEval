@@ -79,9 +79,26 @@ Lấy từ `results[*].result.failures` trong run JSON.
 
 Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn + 5 multi turn).
 
+Run: [`starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json`](../../starter_v0/runs/v3_B_group_openrouter_20261111T100954515130.json) — `v3+p29a0e3cdc49c+t2b0b1d3ae07e`, model `openai/gpt-4o-mini`, `measured_cases=10`, `provider_error_cases=0`. Kết quả: **8/10 PASS** (case_accuracy 0.8, tool_routing 0.9, argument 0.8, multiturn 0.8).
+
 | Case ID | What It Tests | Expected Tool/Behavior | Result |
 |---|---|---|---|
-|  |  |  |  |
+| G01_math_news_is_in_scope | Câu có chữ "toán" nhưng là hỏi tin tức → vẫn là research, không từ chối | `lookup(topic=news, timeframe=day)` | PASS |
+| G02_thanks_no_tool | Câu xã giao kết thúc hội thoại → không gọi tool | `no_tool` (answer_without_tool) | PASS |
+| G03_missing_pronoun_handle | Chỉ có "anh ấy", không có tên/handle → hỏi lại, không đoán | `clarify(response_type=text)` | PASS |
+| G04_out_of_scope_booking | Đặt vé máy bay (ngoài phạm vi research) → từ chối | `no_tool` (refuse) | **FAIL** — gọi `clarify` hỏi giờ bay thay vì từ chối (`out_of_scope` / `unexpected_tool_call`) |
+| G05_timeframe_month | "tháng này" → `timeframe=month` (base chỉ phủ day/week) | `lookup(topic=news, timeframe=month)` | PASS |
+| GM01_switch_timeline_to_search | Multi-turn: chuyển từ bài CỦA một người sang bài VỀ chủ đề | `social_search(search_type=Top)` | PASS |
+| GM02_send_after_confirmation | Multi-turn: user đã xác nhận rõ → gửi, không hỏi lại vô hạn | `send(confirmed=true)` | PASS |
+| GM03_correction_search_type | Multi-turn: sửa Latest → Top giữa chừng, giữ query | `social_search(query=Gemini, search_type=Top)` | PASS |
+| GM04_clarify_then_handle | Multi-turn: bổ sung tên "Yann LeCun" ở lượt sau → map đúng handle, `limit=5` | `timeline(screenname=ylecun, limit=5)` | **FAIL** — `screenname="yannlecun"` (đoán sai handle; `limit` đúng) |
+| GM05_reconfirm_after_edit | Multi-turn: user sửa nội dung nhưng chưa xác nhận bản mới → hỏi lại, không send | `clarify(response_type=yes_no)` | PASS |
+
+Nhận xét 2 case FAIL:
+- **G04**: lỗi thật của model — không nhận ra yêu cầu nằm ngoài khả năng của agent, hỏi thêm chi tiết như thể sẽ làm được. Hướng sửa thuộc `system_prompt.md`: rule "yêu cầu hành động ngoài research (đặt vé, mua hàng…) → từ chối ngắn gọn, không gọi tool".
+- **GM04**: model hiểu đúng ngữ cảnh multi-turn (đúng tool `timeline`, đúng `limit=5`) nhưng tự đoán handle từ tên người. Case này phụ thuộc vào việc model có thuộc handle hay không → cần review thủ công; hành vi an toàn hơn là hỏi lại handle hoặc tra cứu trước.
+
+Ghi chú: bộ group hiện **chưa có case route tới tool mới** của nhóm vì 4 tool mới (`hn_search`, `reading_time`, `extract_links`, `dedupe_items`) chưa được khai báo trong `artifacts/tools.yaml` của v3; contract test và `run_eval.py` sẽ báo lỗi nếu case nhắc tới tool chưa khai báo.
 
 ### B4. Live Chat Evidence
 
@@ -110,9 +127,20 @@ Chỉ điền nếu nhóm làm bonus (ghi riêng, tối đa 10 điểm). Tool c�
 | Small Local Model | xem B7 |  |  |
 | Hơn 3 tool mới (≥ 4) |  |  |  |
 | `send` gửi thật lên Telegram sau xác nhận | transcript |  |  |
-| Test challenge (0 skipped / regression test) | `pytest` output |  |  |
+| Test challenge (0 skipped / regression test) | `pytest` output: **102 passed, 0 failed, 0 skipped**; [`starter_v0/tests/test_tools_todo.py`](../../starter_v0/tests/test_tools_todo.py) (commit `af8bcb8`) | Điền hết 14 stub tool có sẵn (clarify, format ×3, send ×2, lookup, fetch ×2, timeline, social_search, policy ×3); tìm và sửa 4 bug trong tool có sẵn, mỗi bug có regression test | Test chạy offline, HTTP mock bằng `fake_http`; mỗi test assert cả request gửi đi lẫn kết quả trả về |
 
 Test challenge: số bug tìm được trong tool có sẵn (nếu có), cách sửa, và test regression tương ứng.
+
+| # | Tool | Input biên | Hành vi cũ | Sửa | Regression test |
+|---|---|---|---|---|---|
+| 1 | `send` | `confirmed="false"` (chuỗi) | **Vẫn gửi thật lên Telegram** — chuỗi khác rỗng là truthy, thủng guardrail xác nhận | Chỉ chấp nhận `confirmed is True` | `test_send_non_boolean_confirmed_does_not_send` |
+| 2 | `format` | `items=["chuỗi", ...]` | Raise `AttributeError` (vi phạm quy ước trả error dict) | Bỏ qua item không phải dict | `test_format_skips_non_dict_items_instead_of_raising` |
+| 3 | `format` | item không có url/source | Dòng thừa `" - "` ở cuối | Bỏ separator khi không có nguồn | `test_format_item_without_source_has_no_dangling_dash` |
+| 4 | `timeline`, `social_search` | `limit=-1` | `items[:-1]` → trả 19/20 tweet | `limit <= 0` → dùng mặc định 5 | `test_tweet_tools_negative_limit_falls_back_to_default` |
+
+Kiểm chứng: chạy các regression test trên code gốc → failed; sau khi sửa → pass.
+
+Ví dụ lỗi unit test bắt được mà eval không bắt được: bug #1. Eval chỉ chấm model có gọi `send(confirmed=true)` đúng lúc hay không; nếu model truyền `confirmed="false"` thì eval chỉ báo `wrong_arg_value`, nhưng **tool vẫn gửi tin thật**. Chỉ unit test (assert không có POST nào đi ra) mới phát hiện được.
 
 ### B7. Small Local Model Challenge (bonus)
 
